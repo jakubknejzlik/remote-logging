@@ -13,7 +13,18 @@
 #import <CWLSynthesizeSingleton.h>
 #import <GNContextManager.h>
 
-void RLLog(NSString *format,...){
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
+
+
+@interface RemoteLogging ()
++(instancetype)sharedInstance;
+@property (nonatomic,strong) NSManagedObjectContext *context;
+@end
+
+
+extern void RLLog(NSString *format,...){
     // Type to hold information about variable arguments.
     va_list ap;
     
@@ -27,13 +38,20 @@ void RLLog(NSString *format,...){
 }
 
 
-@interface RemoteLogging ()
-@property (nonatomic,strong) NSManagedObjectContext *context;
-@end
-
 
 @implementation RemoteLogging
 CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
+
+
++(void)takeOff:(NSString *)appKey{
+    
+#if TARGET_OS_IPHONE
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidFinnishLaunching) name:UIApplicationDidFinishLaunchingNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
+#endif
+    
+}
 
 -(NSManagedObjectContext *)context{
     if(!_context){
@@ -49,6 +67,18 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
     log.body = message;
     log.date = [NSDate date];
     [[self context] save:nil];
+}
+
+
+#pragma mark - iOS App Events
+-(void)appDidFinnishLaunching{
+    [self logMessage:@"app did finnish launching"];
+}
+-(void)appDidBecomeActive{
+    [self logMessage:@"app did become active"];
+}
+-(void)appDidEnterBackground{
+    [self logMessage:@"app did enter background"];
 }
 
 @end

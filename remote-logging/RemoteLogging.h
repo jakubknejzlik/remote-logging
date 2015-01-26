@@ -14,8 +14,7 @@ extern void RLLog(NSString *format,...);
 
 @interface RemoteLogging : NSObject
 
-+(instancetype)sharedInstance;
-
++(void)takeOff:(NSString *)appKey;
 
 -(void)logMessage:(NSString *)message;
 
