@@ -15,7 +15,7 @@
 		EE7E0DEF1A769E7700D11831 /* RLModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = EE7E0DED1A769E7700D11831 /* RLModel.xcdatamodeld */; };
 		EE7E0DF01A769E7700D11831 /* RLModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = EE7E0DED1A769E7700D11831 /* RLModel.xcdatamodeld */; };
 		EE7E0DF21A76A24E00D11831 /* RemoteLoggingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EE7E0DF11A76A24E00D11831 /* RemoteLoggingTests.m */; };
-		EE7E0E0E1A76AB1300D11831 /* RLLocalLog.m in Sources */ = {isa = PBXBuildFile; fileRef = EE7E0E0D1A76AB1300D11831 /* RLLocalLog.m */; };
+		EE7E0E121A76B01000D11831 /* RLLocalLog.m in Sources */ = {isa = PBXBuildFile; fileRef = EE7E0E111A76B01000D11831 /* RLLocalLog.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,8 +55,9 @@
 		EE7E0DE01A769BFB00D11831 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EE7E0DEE1A769E7700D11831 /* RLModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = RLModel.xcdatamodel; sourceTree = "<group>"; };
 		EE7E0DF11A76A24E00D11831 /* RemoteLoggingTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RemoteLoggingTests.m; sourceTree = "<group>"; };
-		EE7E0E0C1A76AB1300D11831 /* RLLocalLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RLLocalLog.h; sourceTree = SOURCE_ROOT; };
-		EE7E0E0D1A76AB1300D11831 /* RLLocalLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RLLocalLog.m; sourceTree = SOURCE_ROOT; };
+		EE7E0E0F1A76AEF200D11831 /* remote-logging.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = "remote-logging.podspec"; sourceTree = "<group>"; };
+		EE7E0E101A76B01000D11831 /* RLLocalLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RLLocalLog.h; sourceTree = "<group>"; };
+		EE7E0E111A76B01000D11831 /* RLLocalLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RLLocalLog.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +104,7 @@
 		EE7E0DC61A769BFB00D11831 = {
 			isa = PBXGroup;
 			children = (
+				EE7E0E0F1A76AEF200D11831 /* remote-logging.podspec */,
 				EE7E0DD11A769BFB00D11831 /* remote-logging */,
 				EE7E0DDE1A769BFB00D11831 /* remote-loggingTests */,
 				EE7E0DD01A769BFB00D11831 /* Products */,
@@ -151,8 +153,8 @@
 		EE7E0DF31A76A8E100D11831 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				EE7E0E0C1A76AB1300D11831 /* RLLocalLog.h */,
-				EE7E0E0D1A76AB1300D11831 /* RLLocalLog.m */,
+				EE7E0E101A76B01000D11831 /* RLLocalLog.h */,
+				EE7E0E111A76B01000D11831 /* RLLocalLog.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -314,7 +316,7 @@
 			files = (
 				EE7E0DD51A769BFB00D11831 /* RemoteLogging.m in Sources */,
 				EE7E0DEF1A769E7700D11831 /* RLModel.xcdatamodeld in Sources */,
-				EE7E0E0E1A76AB1300D11831 /* RLLocalLog.m in Sources */,
+				EE7E0E121A76B01000D11831 /* RLLocalLog.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
