@@ -40,6 +40,7 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
     RLLocalLog *log = [[self context] createObjectWithName:@"RLLocalLog"];
     log.body = message;
     log.date = [NSDate date];
+    [[self context] save:nil];
 }
 
 @end
