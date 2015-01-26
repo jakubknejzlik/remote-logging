@@ -2,7 +2,7 @@ Pod::Spec.new do |s|
 
 
   s.name         = "remote-logging"
-  s.version      = "0.0.2"
+  s.version      = "0.0.3"
   s.summary      = "remote loggin for ios/osx"
 
   s.description  = <<-DESC
@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "https://github.com/jakubknejzlik/remote-logging.git", :tag => "0.0.2" }
+  s.source       = { :git => "https://github.com/jakubknejzlik/remote-logging.git", :tag => "0.0.3" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -55,7 +55,7 @@ Pod::Spec.new do |s|
   #
 
   # s.resource  = "icon.png"
-  s.resources = "remote-logging/*.{xcdatamodel}"
+  s.resources = "remote-logging/*.{xcdatamodeld}"
 
   # s.preserve_paths = "FilesToSave", "MoreFilesToSave"
 
