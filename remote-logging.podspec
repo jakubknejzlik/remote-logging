@@ -1,8 +1,8 @@
 Pod::Spec.new do |s|
 
 
-  s.name         = "remote-logging"
-  s.version      = "0.0.4.1"
+  s.name         = "RemoteLogging"
+  s.version      = "0.0.4.2"
   s.summary      = "remote loggin for ios/osx"
 
   s.description  = <<-DESC
@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "https://github.com/jakubknejzlik/remote-logging.git", :tag => "0.0.4.1" }
+  s.source       = { :git => "https://github.com/jakubknejzlik/remote-logging.git", :tag => "0.0.4.2" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
