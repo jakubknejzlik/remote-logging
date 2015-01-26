@@ -13,6 +13,7 @@ extern void RLLog(NSString *format,...);
 
 
 @interface RemoteLogging : NSObject
+@property (nonatomic,copy) NSURL *persistentStoreURL;
 
 +(void)takeOff:(NSString *)appKey;
 

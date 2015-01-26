@@ -53,10 +53,18 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
     
 }
 
+-(NSURL *)persistentStoreURL{
+    if (!_persistentStoreURL) {
+        return [NSURL fileURLWithPath:[[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:@"RLModelStore.sqlite"]];
+    }
+    return _persistentStoreURL;
+}
+
 -(NSManagedObjectContext *)context{
     if(!_context){
         GNContextSettings *settings = [[GNContextSettings alloc] init];
         settings.managedObjectModelPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"RLModel" ofType:@"momd"];
+        settings.persistentStoreUrl = [self persistentStoreURL];
         _context = [[GNContextManager sharedInstance] managedObjectContextWithSettings:settings];
     }
     return _context;
