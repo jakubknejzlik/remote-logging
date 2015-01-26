@@ -3,10 +3,11 @@
 
 target 'remote-logging' do
 pod 'GNContextManager'
-pod 'AFNetworiking'
+pod 'AFNetworking'
+pod 'CWLSynthesizeSingleton'
 end
 
 target 'remote-loggingTests' do
-
+pod 'GNContextManager'
 end
 

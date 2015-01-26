@@ -8,6 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
-@interface remote_logging : NSObject
+
+extern void RLLog(NSString *format,...);
+
+
+@interface RemoteLogging : NSObject
+
++(instancetype)sharedInstance;
+
+
+-(void)logMessage:(NSString *)message;
 
 @end
