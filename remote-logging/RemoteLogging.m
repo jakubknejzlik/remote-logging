@@ -26,14 +26,22 @@ void RLLog(NSString *format,...){
     [[RemoteLogging sharedInstance] logMessage:body];
 }
 
+
+@interface RemoteLogging ()
+@property (nonatomic,strong) NSManagedObjectContext *context;
+@end
+
+
 @implementation RemoteLogging
 CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
 
 -(NSManagedObjectContext *)context{
-    GNContextSettings *settings = [[GNContextSettings alloc] init];
-    settings.persistentStoreType = NSInMemoryStoreType;
-    settings.managedObjectModelPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"RLModel" ofType:@"momd"];
-    return [[GNContextManager sharedInstance] managedObjectContextWithSettings:settings];
+    if(!_context){
+        GNContextSettings *settings = [[GNContextSettings alloc] init];
+        settings.managedObjectModelPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"RLModel" ofType:@"momd"];
+        _context = [[GNContextManager sharedInstance] managedObjectContextWithSettings:settings];
+    }
+    return _context;
 }
 
 -(void)logMessage:(NSString *)message{
