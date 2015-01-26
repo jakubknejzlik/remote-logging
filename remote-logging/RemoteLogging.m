@@ -46,9 +46,11 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
 +(void)takeOff:(NSString *)appKey{
     
 #if TARGET_OS_IPHONE
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidFinnishLaunching) name:UIApplicationDidFinishLaunchingNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:[self sharedInstance] selector:@selector(appDidFinnishLaunching) name:UIApplicationDidFinishLaunchingNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:[self sharedInstance] selector:@selector(appWillEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:[self sharedInstance] selector:@selector(appDidBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:[self sharedInstance] selector:@selector(appWillResignActive) name:UIApplicationWillResignActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:[self sharedInstance] selector:@selector(appDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
 #endif
     
 }
@@ -82,8 +84,14 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
 -(void)appDidFinnishLaunching{
     [self logMessage:@"app did finnish launching"];
 }
+-(void)appWillEnterForeground{
+    [self logMessage:@"app will enter foreground"];
+}
 -(void)appDidBecomeActive{
     [self logMessage:@"app did become active"];
+}
+-(void)appWillResignActive{
+    [self logMessage:@"app will resign active"];
 }
 -(void)appDidEnterBackground{
     [self logMessage:@"app did enter background"];
