@@ -84,4 +84,5 @@ Pod::Spec.new do |s|
   s.dependency 'GNContextManager'
   s.dependency 'AFNetworking'
   s.dependency 'CWLSynthesizeSingleton'
+  s.dependency 'ISO8601'
 end
