@@ -67,7 +67,7 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
 +(void)takeOff:(NSString *)appKey{
     [[self sharedInstance] setAppKey:appKey];
     
-    [[self sharedInstance] setSendLogTimer:[NSTimer scheduledTimerWithTimeInterval:30 target:[self sharedInstance] selector:@selector(sendLogs) userInfo:nil repeats:YES]];
+    [[self sharedInstance] setSendLogTimer:[NSTimer scheduledTimerWithTimeInterval:30 target:self selector:@selector(sendLogs) userInfo:nil repeats:YES]];
     
 #if TARGET_OS_IPHONE
     [[NSNotificationCenter defaultCenter] addObserver:[self sharedInstance] selector:@selector(appDidFinnishLaunching) name:UIApplicationDidFinishLaunchingNotification object:nil];
