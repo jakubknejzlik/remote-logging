@@ -180,7 +180,11 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
 }
 
 -(NSString *)deviceIdentifier{
+    #if TARGET_OS_IPHONE
     return [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+    #endif
+    
+    return @"unknown";
 }
 
 #pragma mark - iOS App Events
