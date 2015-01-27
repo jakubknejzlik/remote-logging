@@ -10,6 +10,7 @@
 
 
 void RLLog(NSString *format,...);
+void RLSyncLog(NSString *format,...);
 
 
 @interface RemoteLogging : NSObject
@@ -17,6 +18,10 @@ void RLLog(NSString *format,...);
 
 +(void)takeOff:(NSString *)appKey;
 
--(void)logMessage:(NSString *)message;
++(void)logMessage:(NSString *)message;
++(void)logMessage:(NSString *)message sync:(BOOL)sync;
+
++(void)sendLogs;
++(void)sendLogsWithCompletionHandler:(void(^)(NSError *error))completionHandler;
 
 @end

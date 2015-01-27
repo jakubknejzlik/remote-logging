@@ -11,6 +11,8 @@
 
 #import "RemoteLogging.h"
 
+#import <MochaAsyncTest.h>
+
 @interface RemoteLoggingTests : XCTestCase
 
 @end
@@ -20,6 +22,7 @@
 - (void)setUp {
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    [RemoteLogging takeOff:@"test"];
 }
 
 - (void)tearDown {
@@ -28,7 +31,16 @@
 }
 
 - (void)testExample {
-    RLLog(@"test %@",@25);
+    RLSyncLog(@"test %@",@25);
+}
+
+-(void)testSending{
+    [MochaAsyncTest runBlock:^(MochaAsyncDone done, MochaAsyncDoneWithError fail) {
+        [RemoteLogging sendLogsWithCompletionHandler:^(NSError *error) {
+            if(error)return fail(error);
+            done();
+        }];
+    }];
 }
 
 @end
