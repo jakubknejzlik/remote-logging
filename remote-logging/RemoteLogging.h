@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 
-extern void RLLog(NSString *format,...);
+void RLLog(NSString *format,...);
 
 
 @interface RemoteLogging : NSObject

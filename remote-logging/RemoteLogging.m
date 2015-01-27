@@ -21,6 +21,7 @@
 @interface RemoteLogging ()
 +(instancetype)sharedInstance;
 @property (nonatomic,strong) NSManagedObjectContext *context;
+@property BOOL needsSave;
 @end
 
 
@@ -64,7 +65,7 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
 
 -(NSManagedObjectContext *)context{
     if(!_context){
-        GNContextSettings *settings = [[GNContextSettings alloc] init];
+        GNContextSettings *settings = [GNContextSettings privateQueueDefaultSettings];
         settings.managedObjectModelPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"RLModel" ofType:@"momd"];
         settings.persistentStoreUrl = [self persistentStoreURL];
         _context = [[GNContextManager sharedInstance] managedObjectContextWithSettings:settings];
@@ -73,12 +74,40 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
 }
 
 -(void)logMessage:(NSString *)message{
-    RLLocalLog *log = [[self context] createObjectWithName:@"RLLocalLog"];
-    log.body = message;
-    log.date = [NSDate date];
-    [[self context] save:nil];
+    [self logMessage:message async:YES];
+}
+-(void)logMessage:(NSString *)message async:(BOOL)async{
+    [self.context performBlock:^{
+        RLLocalLog *log = [self.context createObjectWithName:@"RLLocalLog"];
+        log.body = message;
+        log.date = [NSDate date];
+        if(async){
+            [self setNeedsSave];
+        }else{
+            [self save:nil];
+        }
+    }];
 }
 
+-(void)setNeedsSave{
+    if (!self.needsSave) {
+        self.needsSave = YES;
+        [self performSelector:@selector(saveIfNeeded) withObject:nil afterDelay:3];
+    }
+}
+-(void)saveIfNeeded{
+    if (self.needsSave) {
+        [self save:nil];
+        self.needsSave = NO;
+    }
+}
+-(BOOL)save:(NSError **)error{
+    __block BOOL saved = NO;
+    [self.context performBlockAndWait:^{
+        saved = [self.context save:error];
+    }];
+    return saved;
+}
 
 #pragma mark - iOS App Events
 -(void)appDidFinnishLaunching{
