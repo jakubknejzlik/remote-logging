@@ -13,10 +13,17 @@ void RLLog(NSString *format,...);
 void RLSyncLog(NSString *format,...);
 
 
+typedef NS_ENUM(NSUInteger, RemoteLoggingLogLevel) {
+    RemoteLoggingLogLevelNone,
+    RemoteLoggingLogLevelAll
+};
+
 @interface RemoteLogging : NSObject
 @property (nonatomic,copy) NSURL *persistentStoreURL;
 
 +(void)takeOff:(NSString *)appKey;
+
++(void)setLogLevel:(RemoteLoggingLogLevel)level;
 
 +(void)logMessage:(NSString *)message;
 +(void)logMessage:(NSString *)message sync:(BOOL)sync;

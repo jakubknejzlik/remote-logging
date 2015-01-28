@@ -26,9 +26,11 @@
 
 @property BOOL needsSave;
 @property (nonatomic,strong) NSManagedObjectContext *context;
+@property (nonatomic,strong) NSManagedObjectContext *readContext;
 @property (nonatomic,strong) AFHTTPRequestOperationManager *httpManager;
 
 @property (nonatomic,strong) NSTimer *sendLogTimer;
+@property (nonatomic) RemoteLoggingLogLevel logLevel;
 
 @end
 
@@ -67,7 +69,7 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
 +(void)takeOff:(NSString *)appKey{
     [[self sharedInstance] setAppKey:appKey];
     
-    [[self sharedInstance] setSendLogTimer:[NSTimer scheduledTimerWithTimeInterval:30 target:self selector:@selector(sendLogs) userInfo:nil repeats:YES]];
+    [[self sharedInstance] setSendLogTimer:[NSTimer scheduledTimerWithTimeInterval:10 target:self selector:@selector(sendLogs) userInfo:nil repeats:YES]];
     
 #if TARGET_OS_IPHONE
     [[NSNotificationCenter defaultCenter] addObserver:[self sharedInstance] selector:@selector(appDidFinnishLaunching) name:UIApplicationDidFinishLaunchingNotification object:nil];
@@ -77,6 +79,9 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
     [[NSNotificationCenter defaultCenter] addObserver:[self sharedInstance] selector:@selector(appDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
 #endif
     
+}
++(void)setLogLevel:(RemoteLoggingLogLevel)level{
+    [[self sharedInstance] setLogLevel:level];
 }
 
 -(NSURL *)persistentStoreURL{
@@ -94,6 +99,15 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
         _context = [[GNContextManager sharedInstance] managedObjectContextWithSettings:settings];
     }
     return _context;
+}
+-(NSManagedObjectContext *)readContext{
+    if(!_readContext){
+        GNContextSettings *settings = [GNContextSettings privateQueueDefaultSettings];
+        settings.managedObjectModelPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"RLModel" ofType:@"momd"];
+        settings.persistentStoreUrl = [self persistentStoreURL];
+        _readContext = [[GNContextManager sharedInstance] managedObjectContextWithSettings:settings];
+    }
+    return _readContext;
 }
 
 -(AFHTTPRequestOperationManager *)httpManager{
@@ -114,22 +128,29 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
     [self logMessage:message sync:NO];
 }
 -(void)logMessage:(NSString *)message sync:(BOOL)sync{
-    [self.context performBlock:^{
-        RLLocalLog *log = [self.context createObjectWithName:@"RLLocalLog"];
-        log.body = message;
-        log.date = [NSDate date];
-        if(sync){
+    if(sync){
+        [self.context performBlockAndWait:^{
+            RLLocalLog *log = [self.context createObjectWithName:@"RLLocalLog"];
+            log.body = message;
+            log.date = [NSDate date];
             [self save:nil];
-        }else{
+        }];
+    }else{
+        [self.context performBlock:^{
+            RLLocalLog *log = [self.context createObjectWithName:@"RLLocalLog"];
+            log.body = message;
+            log.date = [NSDate date];
             [self setNeedsSave];
-        }
-    }];
+        }];
+    }
 }
 
 -(void)setNeedsSave{
     if (!self.needsSave) {
         self.needsSave = YES;
-        [self performSelector:@selector(saveIfNeeded) withObject:nil afterDelay:3];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+            [self saveIfNeeded];
+        });
     }
 }
 -(void)saveIfNeeded{
@@ -142,13 +163,16 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
     __block BOOL saved = NO;
     [self.context performBlockAndWait:^{
         saved = [self.context save:error];
+        [self.context reset];
     }];
     return saved;
 }
 
 +(void)sendLogs{
     [self sendLogsWithCompletionHandler:^(NSError *error) {
-        NSLog(@"logs sent");
+        if([[self sharedInstance] logLevel] == RemoteLoggingLogLevelAll){
+            NSLog(@"logs sent remaining: %i",(int)[[[self sharedInstance] context] numberOfObjectsWithName:@"RLLocalLog" predicate:[NSPredicate predicateWithFormat:@"SELF.sent = NO"]]);
+        }
     }];
 }
 +(void)sendLogsWithCompletionHandler:(void (^)(NSError *))completionHandler{
@@ -156,9 +180,12 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
 }
 -(void)sendLogsWithCompletionHandler:(void (^)(NSError *error))completionHandler{
     if(!self.appKey)return completionHandler([NSError errorWithDomain:@"RemoteLogging missing appKey" code:-1000 userInfo:nil]);
-    NSArray *logs = [self.context objectsWithName:@"RLLocalLog" predicate:[NSPredicate predicateWithFormat:@"SELF.sent = NO"]];
+    NSArray *logs = [self.readContext objectsWithName:@"RLLocalLog" predicate:[NSPredicate predicateWithFormat:@"SELF.sent = NO"] sortDescriptors:nil limit:500];
     
-    if([logs count] == 0)return completionHandler(nil);
+    if([logs count] == 0){
+        if(self.logLevel == RemoteLoggingLogLevelAll)NSLog(@"no logs to send");
+        return completionHandler(nil);
+    }
     
     NSMutableArray *logsData = [NSMutableArray array];
     for (RLLocalLog *log in logs) {
@@ -167,11 +194,12 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
     
     NSDictionary *data = @{@"app_id":self.appKey,@"data":logsData,@"device":[self deviceIdentifier]};
     [self.httpManager POST:@"logs" parameters:data success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        [self.context performBlockAndWait:^{
+        [self.readContext performBlockAndWait:^{
             for (RLLocalLog *log in logs) {
                 log.sent = @YES;
             }
-            [self.context save:nil];
+            [self.readContext save:nil];
+            [self.readContext reset];
         }];
         completionHandler(nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -180,9 +208,9 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
 }
 
 -(NSString *)deviceIdentifier{
-    #if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
     return [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-    #endif
+#endif
     
     return @"unknown";
 }
