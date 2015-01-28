@@ -171,7 +171,7 @@ CWL_SYNTHESIZE_SINGLETON_FOR_CLASS_WITH_ACCESSOR(RemoteLogging, sharedInstance);
 +(void)sendLogs{
     [self sendLogsWithCompletionHandler:^(NSError *error) {
         if([[self sharedInstance] logLevel] == RemoteLoggingLogLevelAll){
-            NSLog(@"logs sent remaining: %i",(int)[[[self sharedInstance] context] numberOfObjectsWithName:@"RLLocalLog" predicate:[NSPredicate predicateWithFormat:@"SELF.sent = NO"]]);
+            NSLog(@"logs sent remaining: %i",(int)[(NSManagedObjectContext *)[[self sharedInstance] context] numberOfObjectsWithName:@"RLLocalLog" predicate:[NSPredicate predicateWithFormat:@"SELF.sent = NO"]]);
         }
     }];
 }
